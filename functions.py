@@ -23,13 +23,14 @@ def forward(sample, model):
     return x
 
 
-def fittness(dataset, model):
+def fitness(dataset, model):
     sum_correct = 0
     for i in range(len(dataset)):
         pred = forward(dataset[i][0], model)
         if pred == dataset[i][1]:
             sum_correct += 1
     model.fitness = sum_correct / len(dataset)
+    return model.fitness
 
 
 def calc_probabilities(population):
@@ -67,6 +68,6 @@ def generate_next_generation(population):
         parent1 = np.random.choice(population, p=probabilities)
         parent2 = np.random.choice(population, p=probabilities)
         child = crossover(parent1, parent2)
-        mutate(child)
+        # mutate(child)
         new_population.append(child)
     return new_population
