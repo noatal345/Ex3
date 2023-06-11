@@ -8,6 +8,7 @@ class model:
         self.weights = []
         self.biases = []
         self.fitness = 0
+        self.elite = False
         if init_weights:
             self.init_weights()
 

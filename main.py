@@ -14,7 +14,9 @@ population = init_pop.init_pop(POPULATION_SIZE, NUM_OF_LAYERS, [16, 8, 4, 1])
 for i in range(100):
     # calculate the fitness of each individual in the population
     fitness_lst = [fitness(nn0_list_of_samples, population[i]) for i in range(POPULATION_SIZE)]
+    # print the fitness_lst
+    print(fitness_lst)
     # generate the next generation
     population = generate_next_generation(population)
     # print the best fitness in the generation
-    print("Generation: " + str(i) + " Best Fitness: " + str(min(fitness_lst)))
+    print("Generation: " + str(i) + " Best Fitness: " + str(max(fitness_lst)))
