@@ -1,0 +1,1 @@
+from init_pop import init_pop, model
