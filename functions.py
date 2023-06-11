@@ -1,7 +1,26 @@
-from main import forward
 from conf import *
 from init_pop import model as model_class
 import numpy as np
+
+
+def sigmoid(x):
+    # the function returns the sigmoid of the input
+    return 1 / (1 + np.exp(-x))
+
+
+def forward(sample, model):
+    # This function is in charge of the forward propagation of the sample through the model
+    # returns the prediction of the model 0 or 1
+    x = sample.copy()
+    for i in range(model.num_of_layers - 1):
+        x = np.dot(x, model.weights[i]) + model.biases[i]
+        x = sigmoid(x)
+    # return a binary output
+    if x > 0.5:
+        x = 1
+    else:
+        x = 0
+    return x
 
 
 def fittness(dataset, model):
