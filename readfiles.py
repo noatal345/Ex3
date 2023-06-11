@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 
 
 def read_files(name_of_file):
@@ -12,7 +12,7 @@ def read_files(name_of_file):
     for line in file:
         sample, classification = line.split()
         # convert each char-digit of the sample to int and store in the numpy array
-        sample = numpy.array([int(digit) for digit in sample])
+        sample = np.array([int(digit) for digit in sample])
         classification = int(classification)
         list_of_samples.append((sample, classification))
     return list_of_samples
