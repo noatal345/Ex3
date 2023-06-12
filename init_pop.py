@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class model:
+class Model:
     def __init__(self, num_of_layers, num_of_neurons, init_weights=True):
         self.num_of_layers = num_of_layers
         self.num_of_neurons = num_of_neurons
@@ -20,5 +20,5 @@ class model:
 def init_pop(pop_size, num_of_layers, num_of_neurons):
     pop = []
     for i in range(pop_size):
-        pop.append(model(num_of_layers, num_of_neurons))
+        pop.append(Model(num_of_layers, num_of_neurons))
     return pop

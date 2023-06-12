@@ -1,5 +1,5 @@
 from conf import *
-from init_pop import model as model_class
+from init_pop import Model as model_class
 import numpy as np
 
 
