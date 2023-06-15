@@ -25,14 +25,20 @@ def load_model(file_name):
     return model
 
 
-# read the wnet txt file to create a model with the parameters define in the wnet txt file.
-model = load_model("wnet.txt")
-# create an empty result file
-file = open("result.txt", "w")
-unclassified_samples = read_files("unclassified.txt", False)
+def main():
+    # read the wnet txt file to create a model with the parameters define in the wnet txt file.
+    model = load_model("wnet.txt")
 
-for i in range(len(unclassified_samples)):
-    # for every sample in the unclassified file
-    prediction = forward(unclassified_samples[i], model)
-    # write the sample without the brackets and the prediction in the same line
-    file.write("".join(map(str, unclassified_samples[i])) + " " + str(prediction) + "\n")
+    # create an empty result file
+    file = open("result.txt", "w")
+    unclassified_samples = read_files("unclassified.txt", False)
+
+    for i in range(len(unclassified_samples)):
+        # for every sample in the unclassified file
+        prediction = forward(unclassified_samples[i], model)
+        # write the sample without the brackets and the prediction in the same line
+        file.write("".join(map(str, unclassified_samples[i])) + " " + str(prediction) + "\n")
+
+
+if __name__ == "__runnet__":
+    main()
