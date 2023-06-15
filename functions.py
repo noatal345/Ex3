@@ -42,6 +42,8 @@ def fitness(dataset, model):
 def calc_probabilities(population):
     sum_fitness = sum([model.fitness for model in population])
     probabilities = [model.fitness / sum_fitness for model in population]
+    # normalize the probabilities
+
     return probabilities
 
 

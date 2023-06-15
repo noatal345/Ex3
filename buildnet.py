@@ -37,7 +37,7 @@ def test(population, test_samples):
 
 def train(population, train_samples):
     # The algorithm will run for 100 generations and return the best model
-    for i in range(151):
+    for i in range(201):
         # calculate the fitness of each individual in the population
         fitness_lst = [fitness(train_samples, population[i]) for i in range(POPULATION_SIZE)]
         # generate the next generation
@@ -70,17 +70,17 @@ def genetic_algorithm2(population, train_samples, test_samples):
     return best_model
 
 
-name_of_file = "nn0.txt"
+name_of_file = "nn1.txt"
 # TODO This program should receive one or 2 files ?
 # This is the main program
 # read the files and save the samples and classifications into lists of tuples
 nn0_list_of_samples = read_files(name_of_file, True)
 
 # splite the samples into train and test samples
-nn0_train_samples, nn0_test_samples = split_samples(nn0_list_of_samples, 0.8)
+nn0_train_samples, nn0_test_samples = split_samples(nn0_list_of_samples, 0.9)
 
 # Initialize the population
-population = init_pop.init_pop(POPULATION_SIZE, NUM_OF_LAYERS, [16, 8, 4, 1])
+population = init_pop.init_pop(POPULATION_SIZE, NUM_OF_LAYERS, NEURONS_LST)
 
 # apply the genetic algorithm on the population of models to choose the best one.
 model = genetic_algorithm2(population, nn0_train_samples, nn0_test_samples)
