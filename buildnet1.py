@@ -10,7 +10,7 @@ nn_list_of_samples = read_files(name_of_file, True)
 nn_train_samples, nn_test_samples = split_samples(nn_list_of_samples, train_ratio)
 
 # Initialize the population
-population = init_pop.init_pop(population_size, num_of_layers, neurons_lst)
+population = init_pop.init_pop(population_size, num_of_layers, neurons_lst, leaky_relu)
 
 # start the genetic algorithm
 model = start(population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,

@@ -4,24 +4,16 @@ import random
 from readfiles import *
 import init_pop
 from init_pop import Model
+from tqdm import tqdm
 
 
-def sigmoid(x):
-    # the function returns the sigmoid of the input
-    return 1 / (1 + np.exp(-x))
-
-
-def leaky_relu(x, alpha=0.01):
-    return np.maximum(alpha * x, x)
-
-
+# This function is in charge of the forward propagation of the sample through the model
+# returns the prediction of the model 0 or 1
 def forward(sample, model):
-    # This function is in charge of the forward propagation of the sample through the model
-    # returns the prediction of the model 0 or 1
     x = sample.copy()
     for i in range(model.num_of_layers - 1):
         x = np.dot(x, model.weights[i]) + model.biases[i]
-        x = leaky_relu(x)
+        x = model.activation_function(x)
     # return a binary output
     if x > 0.5:
         x = 1
@@ -51,7 +43,7 @@ def calc_probabilities(population):
 
 
 def crossover(parent1, parent2):
-    child = model_class(parent1.num_of_layers, parent1.num_of_neurons, init_weights=False)
+    child = model_class(parent1.num_of_layers, parent1.num_of_neurons, parent1.activation_function, init_weights=False)
     crossover_layer = np.random.randint(0, parent1.num_of_layers - 1)
     crossover_layer_neuron = np.random.randint(0, parent1.num_of_neurons[crossover_layer + 1])
     for i in range(crossover_layer):
@@ -81,7 +73,6 @@ def generate_next_generation(population, elite_size, population_size, mutation_r
     # get the indexes of the elite models
     elite_indexes = sorted(range(len(population)), key=lambda i: population[i].fitness, reverse=True)[:elite_size]
     new_population = []
-    # print("Elite indexes: " + str(elite_indexes))
     for i in range(population_size):
         if i in elite_indexes:
             population[i].elite = True
@@ -128,9 +119,13 @@ def test(population, test_samples, population_size):
 
 def train(population, train_samples, num_of_generations, population_size, elite_size, mutation_rate, mutation_factor):
     # The algorithm will run for 100 generations and return the best model
-    for i in range(num_of_generations):
+    # for i in range(num_of_generations+1):
+    for i in tqdm(range(num_of_generations+1)):
         # calculate the fitness of each individual in the population
         fitness_lst = [fitness(train_samples, population[i]) for i in range(population_size)]
+        if i % 20 == 0:
+            print("Generation: " + str(i) + " Best Fitness(accuracy): " + str(max(fitness_lst)) + " Average Fitness: "
+                  + str(sum(fitness_lst) / len(fitness_lst)))
         # generate the next generation
         population = generate_next_generation(population, elite_size, population_size, mutation_rate, mutation_factor)
     return population
@@ -157,7 +152,7 @@ def genetic_algorithm2(population, train_samples, test_samples, num_of_generatio
     best_model = population[fitness_lst.index(max(fitness_lst))]
     # test the best model
     fitness_lst = [fitness(test_samples, best_model)]
-    print("Test Best Fitness(accuracy): " + str(round(max(fitness_lst), 4)))
+    print("\nTest Best Fitness(accuracy): " + str(round(max(fitness_lst), 4)))
     # print(fitness_lst)
     return best_model, str(max(fitness_lst))
 
@@ -166,10 +161,10 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
           mutation_rate, mutation_factor):
     # Get the best model out of 10 iterations of the genetic algorithm
     best_model_lst = []
-    i = 0
-    while i < 10:
+    i = 1
+    while i < 11:
         # print iteration number in format string
-        print("Iteration number:", i)
+        print("Iteration number ", i)
         # apply the genetic algorithm on the population of models to choose the best one.
         model, accuracy = genetic_algorithm2(population, nn_train_samples, nn_test_samples, num_of_generations,
                                              population_size, elite_size, mutation_rate, mutation_factor)
