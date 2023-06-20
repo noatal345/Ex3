@@ -1,9 +1,9 @@
 population_size = 20
-num_of_layers = 3
+num_of_layers = 4
 elite_size = int(population_size * 0.25)
 mutation_rate = 0.5
 mutation_factor = 0.2
-neurons_lst = [16, 4, 1]
-num_of_generations = 150
+neurons_lst = [16, 8, 4, 1]
+num_of_generations = 300
 name_of_file = "nn1.txt"
 train_ratio = 0.9
