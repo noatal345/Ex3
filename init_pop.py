@@ -22,10 +22,20 @@ class Model:
         if init_weights:
             self.init_weights()
 
+    import numpy as np
+
     def init_weights(self):
         for i in range(self.num_of_layers - 1):
-            self.weights.append(np.random.uniform(-1, 1, size=(self.num_of_neurons[i], self.num_of_neurons[i + 1])))
-            self.biases.append(np.random.uniform(-1, 1, size=(self.num_of_neurons[i + 1])))
+            # Calculate the scaling factor for Xavier initialization
+            xavier_factor = np.sqrt(1 / (self.num_of_neurons[i] + self.num_of_neurons[i + 1]))
+
+            # Generate random weights using Xavier initialization
+            weights = np.random.normal(0, xavier_factor, size=(self.num_of_neurons[i], self.num_of_neurons[i + 1]))
+            self.weights.append(weights)
+
+            # Biases can be initialized with zeros
+            biases = np.zeros(shape=(self.num_of_neurons[i + 1]))
+            self.biases.append(biases)
 
     def sigmoid(self, x):
         # the function returns the sigmoid of the input
