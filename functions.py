@@ -37,8 +37,6 @@ def fitness(dataset, model):
 def calc_probabilities(population):
     sum_fitness = sum([model.fitness for model in population])
     probabilities = [model.fitness / sum_fitness for model in population]
-    # normalize the probabilities
-
     return probabilities
 
 
@@ -149,7 +147,6 @@ def genetic_algorithm(population, train_samples, test_samples, num_of_generation
 # This genetic algorithm train all the models and then test only the best model on the test samples
 def genetic_algorithm2(population, train_samples, test_samples, num_of_generations, population_size,
                        elite_size, mutation_rate, mutation_factor):
-    test_fitness_lst = []
     population, train_fitness_lst, train_avg_fitness_lst = train(population, train_samples, num_of_generations,
                                                                  population_size, elite_size, mutation_rate,
                                                                  mutation_factor)
@@ -159,10 +156,9 @@ def genetic_algorithm2(population, train_samples, test_samples, num_of_generatio
     best_model = population[fitness_lst.index(max(fitness_lst))]
     # test the best model
     test_fitness = [fitness(test_samples, best_model)]
-    test_fitness_lst.append(test_fitness)
     print("\nTest Best Fitness(accuracy): " + str(round(max(test_fitness), 4)))
     # print(fitness_lst)
-    return best_model, str(max(fitness_lst)), train_fitness_lst, train_avg_fitness_lst, test_fitness_lst
+    return best_model, str(max(fitness_lst)), train_fitness_lst, train_avg_fitness_lst, test_fitness
 
 
 def start(population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,
@@ -171,15 +167,17 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
     best_model_lst = []
     train_fitness_lst_lst = []
     train_avg_fitness_lst_lst = []
+    test_fitness_lst = []
     i = 1
-    while i < 11:
+    while i < 6:
         # print iteration number in format string
         print("Iteration number ", i)
         # apply the genetic algorithm on the population of models to choose the best one.
-        model, accuracy, train_fitness_lst, train_avg_fitness_lst, test_fitness_lst = genetic_algorithm2(
+        model, accuracy, train_fitness_lst, train_avg_fitness_lst, test_fitness = genetic_algorithm2(
             population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,
             mutation_rate, mutation_factor)
         best_model_lst.append((model, accuracy))
+        test_fitness_lst.append(test_fitness)
         train_fitness_lst_lst.append(train_fitness_lst)
         train_avg_fitness_lst_lst.append(train_avg_fitness_lst)
         i += 1
