@@ -204,13 +204,13 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
     return best_model, train_fitness_lst_lst, train_avg_fitness_lst_lst, test_fitness_lst, test_plts_lsts
 
 
-def load_model(file_name):
+def load_model(file_name, xviar):
     # load the weights and biases from a txt file
     file = open(file_name, "r")
     num_of_layers = int(file.readline())
     num_of_neurons = list(map(int, file.readline().split()))
     # create a new model with the parameters define in the wnet txt file.
-    model = Model(num_of_layers, num_of_neurons, False)
+    model = Model(num_of_layers, num_of_neurons, False, xviar)
     # get the weights and biases from the wnet txt file.
     for i in range(model.num_of_layers - 1):
         # reset weights
@@ -221,6 +221,7 @@ def load_model(file_name):
         model.weights.append(np.array(weights))
     file.readline()
     for i in range(model.num_of_layers - 1):
-        model.biases.append(np.array(list(map(float, file.readline().split()))))
+        line = file.readline().strip()
+        model.biases.append(np.array(list(map(float, line[1:-1].split()))))
     file.close()
     return model
