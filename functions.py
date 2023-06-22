@@ -41,7 +41,9 @@ def calc_probabilities(population):
 
 
 def crossover(parent1, parent2):
-    child = model_class(parent1.num_of_layers, parent1.num_of_neurons, parent1.activation_function, init_weights=False)
+    # xviar = True doesn't matter because we are not initializing the weights
+    child = model_class(parent1.num_of_layers, parent1.num_of_neurons, parent1.activation_function, xviar=True,
+                        init_weights=False)
     crossover_layer = np.random.randint(0, parent1.num_of_layers - 1)
     crossover_layer_neuron = np.random.randint(0, parent1.num_of_neurons[crossover_layer + 1])
     for i in range(crossover_layer):
@@ -115,30 +117,40 @@ def test(population, test_samples, population_size):
     return best_model
 
 
-def train(population, train_samples, num_of_generations, population_size, elite_size, mutation_rate, mutation_factor):
+def train(population, train_samples, num_of_generations, population_size, elite_size, mutation_rate, mutation_factor,
+          test_samples):
     train_fitness_lst = []
     train_avg_fitness_lst = []
+    test_plot_lst = []
     # The algorithm will run for 100 generations and return the best model
     for i in range(num_of_generations+1):
     # for i in tqdm(range(num_of_generations+1)):
         # calculate the fitness of each individual in the population
         fitness_lst = [fitness(train_samples, population[i]) for i in range(population_size)]
-        train_fitness_lst.append(max(fitness_lst))
+        train_fitness_lst.append(round(max(fitness_lst), 4))
         train_avg_fitness_lst.append(sum(fitness_lst) / len(fitness_lst))
-        if i % 20 == 0:
-            print("Generation: " + str(i) + " Best Fitness(accuracy): " + str(max(fitness_lst)) + " Average Fitness: "
-                  + str(sum(fitness_lst) / len(fitness_lst)))
+        if i % 50 == 0:
+            avg = sum(fitness_lst) / len(fitness_lst)
+            print("\nGeneration: " + str(i) + " Best Fitness(accuracy): " + str(round(max(fitness_lst), 4)) +
+                  " Average Fitness: " + str(round(avg, 4)))
+            # get the best model from the population
+            best_model = population[fitness_lst.index(max(fitness_lst))]
+            # test the best model
+            test_fitness = [fitness(test_samples, best_model)]
+            print("\nTest Fitness(accuracy): " + str(round(max(test_fitness), 4)))
+            test_plot_lst.append(round(max(test_fitness), 4))
         # generate the next generation
         population = generate_next_generation(population, elite_size, population_size, mutation_rate, mutation_factor)
-    return population, train_fitness_lst, train_avg_fitness_lst
+    return population, train_fitness_lst, train_avg_fitness_lst, test_plot_lst
 
 
 # This genetic algorithm train all the models and then return the model with the best accuracy on the test samples
 def genetic_algorithm(population, train_samples, test_samples, num_of_generations, population_size, elite_size,
                       mutation_rate, mutation_factor):
-    population, train_fitness_lst, train_avg_fitness_lst = train(population, train_samples, num_of_generations,
-                                                                 population_size, elite_size, mutation_rate,
-                                                                 mutation_factor)
+    population, train_fitness_lst, train_avg_fitness_lst, test_plot_lst = train(population, train_samples,
+                                                                                num_of_generations,
+                                                                                population_size, elite_size,
+                                                                                mutation_rate, mutation_factor)
     # test all the models in the population and save the best model
     best_model = test(population, test_samples, population_size)
     return best_model
@@ -147,9 +159,11 @@ def genetic_algorithm(population, train_samples, test_samples, num_of_generation
 # This genetic algorithm train all the models and then test only the best model on the test samples
 def genetic_algorithm2(population, train_samples, test_samples, num_of_generations, population_size,
                        elite_size, mutation_rate, mutation_factor):
-    population, train_fitness_lst, train_avg_fitness_lst = train(population, train_samples, num_of_generations,
-                                                                 population_size, elite_size, mutation_rate,
-                                                                 mutation_factor)
+    population, train_fitness_lst, train_avg_fitness_lst, test_plt_lst = train(population, train_samples,
+                                                                               num_of_generations,
+                                                                               population_size, elite_size,
+                                                                               mutation_rate,
+                                                                               mutation_factor, test_samples)
     # calculate the fitness of each individual in the population
     fitness_lst = [fitness(train_samples, population[i]) for i in range(population_size)]
     # get the best model from the population
@@ -158,7 +172,7 @@ def genetic_algorithm2(population, train_samples, test_samples, num_of_generatio
     test_fitness = [fitness(test_samples, best_model)]
     print("\nTest Best Fitness(accuracy): " + str(round(max(test_fitness), 4)))
     # print(fitness_lst)
-    return best_model, str(max(fitness_lst)), train_fitness_lst, train_avg_fitness_lst, test_fitness
+    return best_model, str(max(fitness_lst)), train_fitness_lst, train_avg_fitness_lst, test_fitness, test_plt_lst
 
 
 def start(population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,
@@ -168,16 +182,18 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
     train_fitness_lst_lst = []
     train_avg_fitness_lst_lst = []
     test_fitness_lst = []
+    test_plts_lsts = []
     i = 1
-    while i < 6:
+    while i < 4:
         # print iteration number in format string
         print("Iteration number ", i)
         # apply the genetic algorithm on the population of models to choose the best one.
-        model, accuracy, train_fitness_lst, train_avg_fitness_lst, test_fitness = genetic_algorithm2(
+        model, accuracy, train_fitness_lst, train_avg_fitness_lst, test_fitness, test_plt_lst = genetic_algorithm2(
             population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,
             mutation_rate, mutation_factor)
         best_model_lst.append((model, accuracy))
         test_fitness_lst.append(test_fitness)
+        test_plts_lsts.append(test_plt_lst)
         train_fitness_lst_lst.append(train_fitness_lst)
         train_avg_fitness_lst_lst.append(train_avg_fitness_lst)
         i += 1
@@ -185,7 +201,7 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
     best_model = max(best_model_lst, key=lambda x: x[1])[0]
     print("All models accuracy list:", [m[1] for m in best_model_lst])
     print("The best model accuracy is:", max([m[1] for m in best_model_lst]))
-    return best_model, train_fitness_lst_lst, train_avg_fitness_lst_lst, test_fitness_lst
+    return best_model, train_fitness_lst_lst, train_avg_fitness_lst_lst, test_fitness_lst, test_plts_lsts
 
 
 def load_model(file_name):
