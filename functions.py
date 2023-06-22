@@ -112,8 +112,6 @@ def test(population, test_samples, population_size):
     # test all the models in the population and return the best model
     fitness_lst = [fitness(test_samples, population[i]) for i in range(population_size)]
     best_model = population[fitness_lst.index(max(fitness_lst))]
-    print("Test Best Fitness(accuracy): " + str(max(fitness_lst)))
-    print(fitness_lst)
     return best_model
 
 
@@ -131,13 +129,10 @@ def train(population, train_samples, num_of_generations, population_size, elite_
         train_avg_fitness_lst.append(sum(fitness_lst) / len(fitness_lst))
         if i % 50 == 0:
             avg = sum(fitness_lst) / len(fitness_lst)
-            print("\nGeneration: " + str(i) + " Best Fitness(accuracy): " + str(round(max(fitness_lst), 4)) +
-                  " Average Fitness: " + str(round(avg, 4)))
             # get the best model from the population
             best_model = population[fitness_lst.index(max(fitness_lst))]
             # test the best model
             test_fitness = [fitness(test_samples, best_model)]
-            print("\nTest Fitness(accuracy): " + str(round(max(test_fitness), 4)))
             test_plot_lst.append(round(max(test_fitness), 4))
         # generate the next generation
         population = generate_next_generation(population, elite_size, population_size, mutation_rate, mutation_factor)
@@ -170,8 +165,6 @@ def genetic_algorithm2(population, train_samples, test_samples, num_of_generatio
     best_model = population[fitness_lst.index(max(fitness_lst))]
     # test the best model
     test_fitness = [fitness(test_samples, best_model)]
-    print("\nTest Best Fitness(accuracy): " + str(round(max(test_fitness), 4)))
-    # print(fitness_lst)
     return best_model, str(max(fitness_lst)), train_fitness_lst, train_avg_fitness_lst, test_fitness, test_plt_lst
 
 
@@ -184,9 +177,7 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
     test_fitness_lst = []
     test_plts_lsts = []
     i = 1
-    while i < 4:
-        # print iteration number in format string
-        print("Iteration number ", i)
+    while i < 6:
         # apply the genetic algorithm on the population of models to choose the best one.
         model, accuracy, train_fitness_lst, train_avg_fitness_lst, test_fitness, test_plt_lst = genetic_algorithm2(
             population, nn_train_samples, nn_test_samples, num_of_generations, population_size, elite_size,
@@ -199,18 +190,16 @@ def start(population, nn_train_samples, nn_test_samples, num_of_generations, pop
         i += 1
 
     best_model = max(best_model_lst, key=lambda x: x[1])[0]
-    print("All models accuracy list:", [m[1] for m in best_model_lst])
-    print("The best model accuracy is:", max([m[1] for m in best_model_lst]))
     return best_model, train_fitness_lst_lst, train_avg_fitness_lst_lst, test_fitness_lst, test_plts_lsts
 
 
-def load_model(file_name, xviar):
+def load_model(file_name, xviar, af):
     # load the weights and biases from a txt file
     file = open(file_name, "r")
     num_of_layers = int(file.readline())
     num_of_neurons = list(map(int, file.readline().split()))
     # create a new model with the parameters define in the wnet txt file.
-    model = Model(num_of_layers, num_of_neurons, False, xviar)
+    model = Model(num_of_layers, num_of_neurons, af, xviar, init_weights=False)
     # get the weights and biases from the wnet txt file.
     for i in range(model.num_of_layers - 1):
         # reset weights
@@ -219,9 +208,18 @@ def load_model(file_name, xviar):
             # make thw weights np.array
             weights.append(np.array(list(map(float, file.readline().split()))))
         model.weights.append(np.array(weights))
-    file.readline()
-    for i in range(model.num_of_layers - 1):
+    # read the biases
+    biases = []
+    line = file.readline().strip()
+    while line:
+        if line.startswith('[') and line.endswith(']'):
+            biases.append(np.array(list(map(float, line.strip('[ ]').split()))))
+        if line.startswith('[') and not line.endswith(']'):
+            array = np.array(list(map(float, line.strip('[ ').split())))
+        elif line.endswith(']') and not line.startswith('['):
+            array = np.append(array, np.array(list(map(float, line.strip(' ]').split()))))
+            biases.append(array)
         line = file.readline().strip()
-        model.biases.append(np.array(list(map(float, line[1:-1].split()))))
+    model.biases = biases
     file.close()
     return model

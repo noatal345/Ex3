@@ -1,7 +1,7 @@
 from functions import *
 
 # read the wnet1.txt file and create a NN model with the parameters defined in the file.
-model = load_model("wnet1.txt")
+model = load_model("wnet1.txt", xviar=True, af="leaky_relu")
 
 # create an empty result file to save the classification of the unclassified samples
 file = open("result1.txt", "w")
